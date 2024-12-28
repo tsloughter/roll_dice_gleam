@@ -1,5 +1,4 @@
 import web
-import gleam/string_tree
 import gleam/int
 import wisp.{File, type Request, type Response}
 import glotel/span
@@ -31,6 +30,8 @@ fn roll_dice(req: Request) -> Response {
     int.to_string(roll),
   )
 
-  let body = string_tree.from_string(int.to_string(roll))
-  wisp.html_response(body, 200)
+  // let body = string_tree.from_string(int.to_string(roll))
+  wisp.response(200)
+  |> wisp.string_body(int.to_string(roll))
+  |> wisp.set_header("content-type", "text/plain")
 }

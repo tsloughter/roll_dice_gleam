@@ -1,12 +1,11 @@
 import gleam/int
 import lustre
-import lustre/attribute
 import lustre/effect.{type Effect}
 import lustre/element/html
 import lustre/element.{type Element}
 import lustre/event
 import lustre/ui
-import lustre_http as http
+import dialup
 
 pub fn main() {
   let app = lustre.application(init, update, view)
@@ -27,7 +26,7 @@ fn init(initial_count: Int) -> #(Model, Effect(Msg)) {
 
 type Msg {
   Roll
-  DiceRollResult(Result(String, http.HttpError))
+  DiceRollResult(Result(String, dialup.Error))
 }
 
 fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
@@ -38,14 +37,14 @@ fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
         Ok(value) -> #(value, effect.none())
         Error(_) -> #(model, effect.none())
       }
-    DiceRollResult(Error(_)) -> #(model, effect.none())
+    DiceRollResult(x) -> #(model, effect.none())
   }
 }
 
 fn roll_dice() -> Effect(Msg) {
-  let url = "http://localhost:8000/rolldice"
+  let url = "/rolldice"
 
-  http.get(url, http.expect_text(DiceRollResult))
+  dialup.get(url, dialup.expect_text(DiceRollResult))
 }
 
 
