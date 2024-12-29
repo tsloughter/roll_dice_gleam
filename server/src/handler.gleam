@@ -1,14 +1,20 @@
 import web
 import gleam/int
-import wisp.{File, type Request, type Response}
+import wisp.{type Request, type Response}
 import glotel/span
 import glotel/span_kind
+import lustre/attribute
+import lustre/element.{type Element}
+import lustre/element/html
 
 pub fn handle_request(req: Request, priv_static: String) -> Response {
   use _req <- web.middleware(req, priv_static)
 
   case wisp.path_segments(req) {
-    [] -> wisp.response(200) |> wisp.set_body(File(path: priv_static <> "/index.html"))
+    [] ->
+      index()
+      |> element.to_document_string_builder
+      |> wisp.html_response(200)
     ["rolldice"] -> roll_dice(req)
     _ -> wisp.not_found()
   }
@@ -34,4 +40,20 @@ fn roll_dice(req: Request) -> Response {
   wisp.response(200)
   |> wisp.string_body(int.to_string(roll))
   |> wisp.set_header("content-type", "text/plain")
+}
+
+
+pub fn index() -> Element(t) {
+  html.html([], [
+    html.head([], [
+      html.title([], "Roll Dice in Gleam"),
+      html.meta([
+        attribute.name("viewport"),
+        attribute.attribute("content", "width=device-width, initial-scale=1"),
+        ]),
+      html.script([attribute.attribute("type", "module"),
+        attribute.src("/static/roll_dice_gleam.min.mjs")], ""),
+    ]),
+    html.body([], [html.div([attribute.id("app")], [])]),
+  ])
 }
