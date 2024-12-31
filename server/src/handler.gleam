@@ -12,7 +12,7 @@ pub fn handle_request(req: Request, priv_static: String) -> Response {
 
   case wisp.path_segments(req) {
     [] ->
-      index()
+      index("")
       |> element.to_document_string_builder
       |> wisp.html_response(200)
     ["rolldice"] -> roll_dice(req)
@@ -43,14 +43,17 @@ fn roll_dice(req: Request) -> Response {
 }
 
 
-pub fn index() -> Element(t) {
+pub fn index(trace_context) -> Element(t) {
   html.html([], [
     html.head([], [
       html.title([], "Roll Dice in Gleam"),
+      html.meta([attribute.name("traceparent"), attribute.content(trace_context)]),
       html.meta([
         attribute.name("viewport"),
         attribute.attribute("content", "width=device-width, initial-scale=1"),
         ]),
+      html.script([attribute.attribute("type", "module"),
+        attribute.src("/static/instrument.js")], ""),
       html.script([attribute.attribute("type", "module"),
         attribute.src("/static/roll_dice_gleam.min.mjs")], ""),
     ]),

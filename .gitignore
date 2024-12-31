@@ -1,2 +1,4 @@
 build
 server/priv/static/roll_dice_gleam.min.mjs
+server/node_modules/
+server/priv/
